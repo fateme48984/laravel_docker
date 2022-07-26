@@ -1,0 +1,101 @@
+version: '3'
+
+networks:
+  backend:
+
+services:
+  nginx:
+    image: nginx:stable
+    container_name: projectname-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./src:/var/www/html
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
+      - mysql
+    networks:
+      - backend
+
+  mysql:
+    image: mysql:8.0
+    container_name: rcf-mysql
+    restart: unless-stopped
+    tty: true
+    volumes:
+      - ./mysql:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: voyager
+      MYSQL_USER: homestead
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: secret
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    networks:
+      - backend
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: projectname_phpmyadmin
+    restart: always
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOST=mysql
+      - PMA_PORT=3306
+    ports:
+      - 127.0.0.1:84:80
+    volumes:
+      - /sessions
+    links:
+      - mysql
+    networks:
+      - backend
+
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: projectname-php
+    volumes:
+      - ./src:/var/www/html
+    ports:
+      - "9000:9000"
+    networks:
+      - backend
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - 6379:6379
+    networks:
+      - backend
+
+  composer:
+    image: composer:latest
+    container_name: projectname-composer
+    volumes:
+      - ./src:/var/www/html
+    working_dir: /var/www/html
+    depends_on:
+      - php
+    networks:
+      - backend
+
+  artisan:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: projectname-artisan
+    volumes:
+      - ./src:/var/www/html
+    depends_on:
+      - mysql
+    working_dir: /var/www/html
+    entrypoint: ['php', '/var/www/html/artisan']
+    networks:
+      - backend
