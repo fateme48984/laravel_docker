@@ -32,9 +32,9 @@ $ chown -R www-data:www-data logs/
 ```bash
 ├── php
 ├── nginx
-└── mysql
-└── phpmyadmin
-└── rabbitmq
+├── mysql
+├── phpmyadmin
+├── rabbitmq
 └── redis
 ```
 
