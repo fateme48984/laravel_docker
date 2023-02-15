@@ -21,7 +21,8 @@ $ docker exec -it projectname-php sh
 $ composer create-project laravel/laravel .
 $ php artisan key:generate
 $ php artisan storage:link
-$ chown -R www-data:www-data logs/
+$ chown -R www-data:www-data storage/logs/
+$ chown -R www-data:www-data storage/framework/
 
 ```
 
