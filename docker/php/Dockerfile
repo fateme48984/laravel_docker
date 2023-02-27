@@ -15,5 +15,6 @@ RUN apt-get update \
 RUN docker-php-ext-configure pcntl --enable-pcntl \
   && docker-php-ext-install \
     pcntl
-
+RUN docker-php-ext-install sockets
+    
 WORKDIR /var/www/html
